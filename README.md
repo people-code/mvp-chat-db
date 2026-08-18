@@ -6,39 +6,46 @@ Stack: Nuxt 4 (Nitro server routes) · PostgreSQL 16 (`pgvector/pgvector:pg16`) 
 
 ## Requisitos
 
-- [Ollama](https://ollama.com) instalado y corriendo en el host.
 - Docker y Docker Compose.
-- `make` (viene preinstalado en macOS y la mayoría de distros Linux) para el flujo de desarrollo local.
+- Node.js 22+ y npm.
+- `make` (viene preinstalado en macOS y la mayoría de distros Linux).
 
-## Arranque rápido (Docker, recomendado)
+## Guía rápida de instalación
+
+### 1. Instalar Ollama (si no lo tienes)
 
 ```bash
-ollama pull gemma4:e4b   # o el modelo que prefieras (ver Modelo más abajo)
-docker compose up
+ollama -v   # ¿ya lo tienes? si el comando existe, salta al paso 2
 ```
 
-Esto levanta Postgres, corre las migraciones y datos de ejemplo (`migrate`) y luego levanta la app en `http://localhost:3000`.
+- macOS: `brew install ollama`, o descargar desde [ollama.com/download](https://ollama.com/download).
+- Linux: `curl -fsSL https://ollama.com/install.sh | sh`.
 
-- macOS/Windows (Docker Desktop): la app alcanza Ollama en el host vía `host.docker.internal`, ya configurado en `docker-compose.yml`.
-- Linux con Ollama en el host: edita `OLLAMA_BASE_URL` en `docker-compose.yml` (servicio `app`) a `http://172.17.0.1:11434` (o la IP del bridge `docker0`).
+Confirma que el servicio esté corriendo (en macOS la app de Ollama lo deja corriendo en background; en Linux puede que necesites `ollama serve`).
 
-Para cambiar el dominio del asistente (`salud` ↔ `restaurant`), edita `APP_DOMAIN` en `docker-compose.yml` y reinicia — no requiere tocar código.
+### 2. Descargar el modelo
 
-## Desarrollo local (sin Docker para la app)
+```bash
+ollama pull gemma4:e4b
+```
+
+Es el modelo que usa el proyecto por defecto (`OLLAMA_MODEL`, ver [Modelo](#modelo)). Cualquier modelo con soporte de `format: json` sirve si prefieres otro.
+
+### 3. Levantar el proyecto
 
 ```bash
 cp .env.example .env
 npm install
-make dev   # levanta Postgres, aplica migraciones + seed, y corre `npm run dev`
+make dev
 ```
 
-`make dev` no reemplaza `docker compose up`: solo levanta el servicio `db` (Postgres) y corre la app directamente en el host con `npm run dev`, para tener hot-reload. `Ctrl+C` detiene `npm run dev`; el contenedor de Postgres queda corriendo hasta que ejecutes:
+`make dev` levanta Postgres en Docker, aplica migraciones y datos de ejemplo (médicos/menú), y corre la app con hot-reload en `http://localhost:3000`. `Ctrl+C` detiene la app; Postgres queda corriendo hasta que ejecutes:
 
 ```bash
 make down   # docker compose down — baja y elimina todos los containers
 ```
 
-`.env` trae valores pensados para correr `npm run dev` en el host (Postgres en `localhost:5432`, Ollama en `localhost:11434`). Este archivo no lo lee `docker compose up` (ver comentario en `.env.example`).
+`.env` trae valores pensados para este flujo (Postgres en `localhost:5432`, Ollama en `localhost:11434`).
 
 ## Datos de catálogo (médicos / menú)
 
@@ -49,15 +56,6 @@ Las tablas `doctors` (nombre, especialidad, horario) y `products` (nombre, preci
 ## Modelo
 
 Por defecto usa `gemma4:e4b` (`OLLAMA_MODEL`). Cualquier modelo con soporte de `format: json` en Ollama funciona; `qwen2.5:7b-instruct` es una alternativa con buen soporte de español y JSON estructurado si tu máquina tiene más VRAM.
-
-## Makefile
-
-```bash
-make dev   # docker compose up -d --wait db && npm run db:migrate && npm run db:seed && npm run dev
-make down  # docker compose down — baja y elimina todos los containers
-```
-
-Atajo para el flujo de desarrollo local descrito arriba: un solo comando para tener Postgres, migraciones, seed y la app con hot-reload arriba.
 
 ## Scripts
 
