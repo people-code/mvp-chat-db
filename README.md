@@ -8,6 +8,7 @@ Stack: Nuxt 4 (Nitro server routes) · PostgreSQL 16 (`pgvector/pgvector:pg16`) 
 
 - [Ollama](https://ollama.com) instalado y corriendo en el host.
 - Docker y Docker Compose.
+- `make` (viene preinstalado en macOS y la mayoría de distros Linux) para el flujo de desarrollo local.
 
 ## Arranque rápido (Docker, recomendado)
 
@@ -48,6 +49,15 @@ Las tablas `doctors` (nombre, especialidad, horario) y `products` (nombre, preci
 ## Modelo
 
 Por defecto usa `gemma4:e4b` (`OLLAMA_MODEL`). Cualquier modelo con soporte de `format: json` en Ollama funciona; `qwen2.5:7b-instruct` es una alternativa con buen soporte de español y JSON estructurado si tu máquina tiene más VRAM.
+
+## Makefile
+
+```bash
+make dev   # docker compose up -d --wait db && npm run db:migrate && npm run db:seed && npm run dev
+make down  # docker compose down — baja y elimina todos los containers
+```
+
+Atajo para el flujo de desarrollo local descrito arriba: un solo comando para tener Postgres, migraciones, seed y la app con hot-reload arriba.
 
 ## Scripts
 
